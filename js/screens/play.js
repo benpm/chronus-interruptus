@@ -9,7 +9,7 @@ game.PlayScreen = me.ScreenObject.extend({
         // reset the score
         game.data.score = 0;
 
-        // add our HUD to the game world
+        /* // add our HUD to the game world
         if (typeof this.HUD === "undefined") {
             this.HUD = new game.HUD.UIContainer();
         }
@@ -21,10 +21,10 @@ game.PlayScreen = me.ScreenObject.extend({
                 this.virtualJoypad = new game.HUD.VirtualJoypad();
             }
             me.game.world.addChild(this.virtualJoypad);
-        }
+        } */
 
         // play some music
-        me.audio.playTrack("dst-gameforest");
+        me.audio.playTrack("jazz");
     },
 
     /**
@@ -41,6 +41,6 @@ game.PlayScreen = me.ScreenObject.extend({
         }
 
         // stop some music
-        me.audio.stopTrack("dst-gameforest");
+        me.audio.stopTrack("jazz");
     }
 });

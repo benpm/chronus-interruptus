@@ -14,9 +14,10 @@ game.KeyEntity = me.Sprite.extend({
 
 		// add a physic body
 		this.body = new me.Body(this);
-		this.body.addShape(new me.Ellipse(this.width / 2, this.height / 2, this.width, this.height))
+		this.body.addShape(new me.Rect(0, 0, this.width, this.height))
 		// set the collision type
 		this.body.collisionType = me.collision.types.COLLECTABLE_OBJECT;
+		this.body.setFriction(0.4, 0);
 		// enable physic
 		this.isKinematic = false;
 
@@ -33,16 +34,6 @@ game.KeyEntity = me.Sprite.extend({
      * collision handling
      */
 	onCollision: function (response, other) {
-
-		/* // do something when collide
-		me.audio.play("cling", false);
-		// give some score
-		game.data.score += 250;
-
-		//avoid further collision and delete it
-		this.body.setCollisionMask(me.collision.types.NO_OBJECT);
-
-		me.game.world.removeChild(this); */
 		if (this.heldby) {
 			return false;
 		}
@@ -53,6 +44,37 @@ game.KeyEntity = me.Sprite.extend({
 			other.holding = this;
 		}
 		if (other.body.collisionType == me.collision.types.WORLD_SHAPE) {
+			if (other.type === "platform") {
+				if (this.body.falling &&
+					!me.input.isKeyPressed("down") &&
+					// Shortest overlap would move the player upward
+					(response.overlapV.y > 0) &&
+					// The velocity is reasonably fast enough to have penetrated to the overlap depth
+					(~~this.body.vel.y >= ~~response.overlapV.y)
+				) {
+					// Disable collision on the x axis
+					response.overlapV.x = 0;
+					// Repond to the platform (it is solid)
+					return true;
+				}
+				// Do not respond to the platform (pass through)
+				return false;
+			}
+
+			// Custom collision response for slopes
+			else if (other.type === "slope") {
+				// Always adjust the collision response upward
+				response.overlapV.y = Math.abs(response.overlap);
+				response.overlapV.x = 0;
+
+				// Respond to the slope (it is solid)
+				return true;
+			}
+
+			// Custom collision response for slopes
+			else if (other.type === "hazard") {
+				return true;
+			}
 			return true;
 		}
 

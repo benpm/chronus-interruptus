@@ -137,6 +137,8 @@ game.PlayerEntity = me.Entity.extend({
         if (me.input.isKeyPressed("action"))
             this.action = true;
         if (this.action && this.holding) {
+            this.holding.body.vel.x = this.facing * 15;
+            this.holding.body.vel.y = -15;
             this.holding.unhold();
             this.holding = null;
             this.action = false;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="left-down" width="40" height="20" tilewidth="70" tileheight="70" infinite="0" backgroundcolor="#05121a" nextlayerid="10" nextobjectid="32">
+<map version="1.2" tiledversion="1.2.1" orientation="orthogonal" renderorder="left-down" width="40" height="20" tilewidth="70" tileheight="70" infinite="0" backgroundcolor="#05121a" nextlayerid="11" nextobjectid="37">
  <tileset firstgid="1" source="tileset.tsx"/>
  <imagelayer id="4" name="Background" locked="1">
   <image source="../img/bg_stars.png" width="1024" height="512"/>
@@ -20,7 +20,7 @@
    <properties>
     <property name="duration" value="150"/>
     <property name="fade" value="#fff"/>
-    <property name="to" value="map0"/>
+    <property name="to" value="level1"/>
    </properties>
   </object>
  </objectgroup>
@@ -33,7 +33,13 @@
   <object id="24" name="KeyEntity" x="1890" y="770" width="70" height="70"/>
  </objectgroup>
  <objectgroup color="#aa4444" id="9" name="Hazards">
-  <object id="31" name="HazardWeight" x="770" y="10" width="66" height="910"/>
+  <object id="34" name="HazardWeight" x="770" y="140" width="66" height="910">
+   <properties>
+    <property name="max_x" type="float" value="700"/>
+    <property name="min_x" type="float" value="10"/>
+    <property name="moverange" type="float" value="-250"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup id="2" name="Collision">
   <object id="8" x="700" y="0">
@@ -42,14 +48,14 @@
   <object id="9" x="0" y="0">
    <polyline points="0,0 0,1400"/>
   </object>
-  <object id="11" x="0" y="1050" width="1120" height="70"/>
-  <object id="12" x="1330" y="840" width="630" height="70"/>
-  <object id="13" x="2380" y="1260" width="420" height="70"/>
+  <object id="11" x="0" y="1050" width="1120" height="350"/>
+  <object id="12" x="1330" y="840" width="630" height="560"/>
+  <object id="13" x="2380" y="1260" width="420" height="140"/>
   <object id="14" type="slope" x="1960" y="840">
-   <polygon points="0,0 420,420 420,490 0,70"/>
+   <polygon points="0,0 420,420 420,560 0,560"/>
   </object>
   <object id="15" type="slope" x="1330" y="840">
-   <polygon points="0,0 -210,210 -210,280 0,70"/>
+   <polygon points="0,0 -210,210 -210,560 0,560"/>
   </object>
   <object id="16" x="1750" y="770" width="70" height="70"/>
  </objectgroup>

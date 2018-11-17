@@ -2,11 +2,9 @@ game.Hazard = me.Sprite.extend({
 	init: function (x, y, settings) {
 		this._super(me.Sprite, "init", [
 			x, y,
-			Object.assign({
-				image: game.texture,
-				region: "weight.png"
-			}, settings)
+			settings
 		]);
+		this.alwaysUpdate = true;
 
 		// add a physic body
 		this.body = new me.Body(this);
@@ -18,6 +16,10 @@ game.Hazard = me.Sprite.extend({
 		this.isKinematic = false;
 		this.inity = this.pos.y;
 		this.initx = this.pos.x;
+		this.rangemin = this.pos.x + settings.min_x;
+		this.rangemax = this.pos.x + settings.max_x;
+		this.timerange = Math.abs(this.rangemax - this.rangemin);
+		this.moverange = settings.moverange;
 	},
 
 	/* onCollision: function (response, other) {
@@ -34,8 +36,38 @@ game.Hazard = me.Sprite.extend({
 });
 
 game.HazardWeight = game.Hazard.extend({
+	init: function (x, y, settings) {
+		this._super(game.Hazard, "init", [
+			x, y,
+			Object.assign({
+				image: game.texture,
+				region: "weight.png"
+			}, settings)
+		]);
+	},
 	update: function () {
 		this._super(game.Hazard, "update");
-		this.pos.y = this.inity + Math.sin(game.data.time / 1000) * 200;
+		if (game.data.time > this.rangemin && game.data.time < this.rangemax) {
+			this.pos.y = this.inity + ((this.rangemax - game.data.time) / this.timerange) * this.moverange;
+		}
+	}
+});
+
+game.HazardPlatform = game.Hazard.extend({
+	init: function (x, y, settings) {
+		this._super(game.Hazard, "init", [
+			x, y,
+			Object.assign({
+				image: game.texture,
+				region: "platform.png"
+			}, settings)
+		]);
+	},
+	update: function () {
+		this._super(game.Hazard, "update");
+		if ((game.data.time > this.rangemin && game.data.time < this.rangemax)
+			|| (game.data.time < this.rangemin && game.data.time > this.rangemax)) {
+			this.pos.x = this.initx + (Math.abs(this.rangemax - game.data.time) / this.timerange) * this.moverange;
+		}
 	}
 });
