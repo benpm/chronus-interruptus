@@ -24,7 +24,9 @@ game.KeyEntity = me.Sprite.extend({
 	},
 
 	unhold: function () {
+		this.heldby.action = false;
 		this.heldby = null;
+		console.log("unheld");
 	},
 
     /**
@@ -41,13 +43,17 @@ game.KeyEntity = me.Sprite.extend({
 		this.body.setCollisionMask(me.collision.types.NO_OBJECT);
 
 		me.game.world.removeChild(this); */
+		if (this.heldby) {
+			return false;
+		}
+		if (other.name == "mainPlayer" && other.action) {
+			console.log("HOLDING");
+			this.heldby = other;
+			other.action = false;
+			other.holding = this;
+		}
 		if (other.body.collisionType == me.collision.types.WORLD_SHAPE) {
 			return true;
-		}
-		if (other == game.data.player && !this.heldby && me.input.isKeyPressed("action")) {
-			console.log("HOLDING");
-			this.heldby = game.data.player;
-			game.data.player.holding = this;
 		}
 
 		return false;

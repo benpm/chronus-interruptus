@@ -19,6 +19,7 @@ game.PlayerEntity = me.Entity.extend({
 
         this.holding = null;
         this.facing = 1;
+        this.action = false;
 
         // set the viewport to follow this renderable on both axis, and enable damping
         me.game.viewport.follow(this, me.game.viewport.AXIS.BOTH, 0.1);
@@ -133,9 +134,12 @@ game.PlayerEntity = me.Entity.extend({
         }
 
         // action key
-        if (me.input.isKeyPressed("action") && this.holding) {
+        if (me.input.isKeyPressed("action"))
+            this.action = true;
+        if (this.action && this.holding) {
             this.holding.unhold();
             this.holding = null;
+            this.action = false;
         }
 
         // apply physics to the body (this moves the entity)
