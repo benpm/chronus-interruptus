@@ -1,39 +1,87 @@
-
-/* Game namespace */
+/**
+ * main
+ */
 var game = {
 
-    // an object where to store game information
+    /**
+     * object where to store game global data
+     */
     data : {
         // score
-        score : 0
+        score: 0,
+        player: null,
+        time: 0
     },
 
+    /**
+     *
+     * Initialize the application
+     */
+    onload: function() {
 
-    // Run on page load.
-    "onload" : function () {
-        // Initialize the video.
-        if (!me.video.init(960, 640, {wrapper : "screen", scale : "auto"})) {
+        // init the video
+        if (!me.video.init(1600, 900, {wrapper : "screen", scale : "auto", scaleMethod : "flex-width", renderer : me.video.WEBGL, subPixel : false })) {
             alert("Your browser does not support HTML5 canvas.");
             return;
         }
 
-        // Initialize the audio.
+        // initialize the "sound engine"
         me.audio.init("mp3,ogg");
 
-        // set and load all resources.
-        // (this will also automatically switch to the loading screen)
+        // set all ressources to be loaded
         me.loader.preload(game.resources, this.loaded.bind(this));
     },
 
-    // Run on game resources loaded.
-    "loaded" : function () {
-        me.state.set(me.state.MENU, new game.TitleScreen());
+
+    /**
+     * callback when everything is loaded
+     */
+    loaded: function ()    {
+
+        // set the "Play/Ingame" Screen Object
         me.state.set(me.state.PLAY, new game.PlayScreen());
 
-        // add our player entity in the entity pool
-        me.pool.register("mainPlayer", game.PlayerEntity);
+        // set the fade transition effect
+        me.state.transition("fade", "#FFFFFF", 250);
 
-        // Start the game.
+        // register our objects entity in the object pool
+        me.pool.register("mainPlayer", game.PlayerEntity);
+        me.pool.register("SlimeEntity", game.SlimeEnemyEntity);
+        me.pool.register("FlyEntity", game.FlyEnemyEntity);
+        me.pool.register("KeyEntity", game.KeyEntity);
+        me.pool.register("CoinEntity", game.CoinEntity);
+        me.pool.register("HazardWeight", game.HazardWeight);
+
+        // load the texture atlas file
+        // this will be used by object entities later
+        game.texture = new me.video.renderer.Texture(
+            me.loader.getJSON("texture"),
+            me.loader.getImage("texture")
+        );
+
+        // add some keyboard shortcuts
+        me.event.subscribe(me.event.KEYDOWN, function (action, keyCode /*, edge */) {
+
+            // change global volume setting
+            if (keyCode === me.input.KEY.PLUS) {
+                // increase volume
+                me.audio.setVolume(me.audio.getVolume()+0.1);
+            } else if (keyCode === me.input.KEY.MINUS) {
+                // decrease volume
+                me.audio.setVolume(me.audio.getVolume()-0.1);
+            }
+
+            // toggle fullscreen on/off
+            if (keyCode === me.input.KEY.F) {
+                if (!me.device.isFullscreen) {
+                    me.device.requestFullscreen();
+                } else {
+                    me.device.exitFullscreen();
+                }
+            }
+        });
+
+        // switch to PLAY state
         me.state.change(me.state.PLAY);
     }
 };
