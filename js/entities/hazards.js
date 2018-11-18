@@ -65,6 +65,7 @@ game.Hazard = me.Sprite.extend({
 		//this.moverange = settings.moverange;
 		this.pathname = settings.path;
 		this.curpoint = 0;
+		this.reverse = Boolean(settings.reverse);
 	},
 
 	/* onCollision: function (response, other) {
@@ -79,7 +80,10 @@ game.Hazard = me.Sprite.extend({
 
 		//Follow path
 		if (this.path) {
-			this.curpoint = ((this.rangemax - game.data.time) / this.timerange) * this.path.length;
+			if (this.reverse)
+				this.curpoint = this.path.length - ((this.rangemax - game.data.time) / this.timerange) * this.path.length;
+			else
+				this.curpoint = ((this.rangemax - game.data.time) / this.timerange) * this.path.length;
 			this.path.posAt(this.pos, this.curpoint);
 		}
 		return (this._super(me.Entity, "update", [dt]));
@@ -95,13 +99,7 @@ game.HazardWeight = game.Hazard.extend({
 				region: "weight.png"
 			}, settings)
 		]);
-	},
-	/* update: function () {
-		this._super(game.Hazard, "update");
-		if (game.data.time > this.rangemin && game.data.time < this.rangemax) {
-			this.pos.y = this.inity + ((this.rangemax - game.data.time) / this.timerange) * this.moverange;
-		}
-	} */
+	}
 });
 
 game.HazardPlatform = game.Hazard.extend({
@@ -113,12 +111,18 @@ game.HazardPlatform = game.Hazard.extend({
 				region: "platform.png"
 			}, settings)
 		]);
-	},
-	/* update: function () {
-		this._super(game.Hazard, "update");
-		if ((game.data.time > this.rangemin && game.data.time < this.rangemax)
-			|| (game.data.time < this.rangemin && game.data.time > this.rangemax)) {
-			this.pos.x = this.initx + (Math.abs(this.rangemax - game.data.time) / this.timerange) * this.moverange;
-		}
-	} */
+	}
+});
+
+game.HazardSpikey = game.Hazard.extend({
+	init: function (x, y, settings) {
+		this._super(game.Hazard, "init", [
+			x, y,
+			Object.assign({
+				image: game.texture,
+				region: "spikey.png"
+			}, settings)
+		]);
+		this.body.collisionType = me.collision.types.ENEMY_OBJECT;
+	}
 });

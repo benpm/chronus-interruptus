@@ -55,6 +55,7 @@ var game = {
         me.pool.register("Door", game.Door);
         me.pool.register("Message", game.Message);
         me.pool.register("HazardWeight", game.HazardWeight);
+        me.pool.register("HazardSpikey", game.HazardSpikey);
 
         // load the texture atlas file
         // this will be used by object entities later

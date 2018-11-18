@@ -20,6 +20,13 @@ game.PlayerEntity = me.Entity.extend({
         this.holding = null;
         this.facing = 1;
         this.action = false;
+        this.ondoor = null;
+        this.health = 3;
+
+        this.zee = new me.Sprite(x, y, {
+            image: game.texture,
+            region: "key.png"
+        });
 
         // set the viewport to follow this renderable on both axis, and enable damping
         me.game.viewport.follow(this, me.game.viewport.AXIS.BOTH, 0.1);
@@ -27,7 +34,8 @@ game.PlayerEntity = me.Entity.extend({
         // enable keyboard
         me.input.bindKey(me.input.KEY.LEFT,  "left");
         me.input.bindKey(me.input.KEY.RIGHT, "right");
-        me.input.bindKey(me.input.KEY.Z,     "action", true);
+        me.input.bindKey(me.input.KEY.Z, "action", true);
+        me.input.bindKey(me.input.KEY.R,     "reset", true);
         me.input.bindKey(me.input.KEY.X,     "jump", true);
         me.input.bindKey(me.input.KEY.UP,    "jump", true);
         me.input.bindKey(me.input.KEY.SPACE, "jump", true);
@@ -133,9 +141,17 @@ game.PlayerEntity = me.Entity.extend({
             }
         }
 
+        // reset
+        if (me.input.isKeyPressed("reset")) {
+            me.levelDirector.reloadLevel();
+            return true;
+        }
+
         // action key
         if (me.input.isKeyPressed("action"))
             this.action = true;
+        if (!me.input.keyStatus("action"))
+            this.action = false;
         if (this.action && this.holding) {
             this.holding.body.vel.x = this.facing * 15;
             this.holding.body.vel.y = -15;
@@ -257,13 +273,17 @@ game.PlayerEntity = me.Entity.extend({
     /**
      * ouch
      */
-    hurt : function () {
+    hurt: function () {
         if (!this.renderable.isFlickering())
         {
+            this.health -= 1;
             this.renderable.flicker(750);
             // flash the screen
             me.game.viewport.fadeIn("#FFFFFF", 75);
             me.audio.play("die", false);
+            if (this.health <= 0) {
+                me.levelDirector.reloadLevel();
+            }
         }
     }
 });
@@ -271,9 +291,8 @@ game.PlayerEntity = me.Entity.extend({
 game.Message = me.Renderable.extend({
     init: function (x, y, settings) {
         this._super(me.Renderable, "init", [x, y, settings.width, settings.height]);
-        console.log(settings);
         this.message = settings.message;
-        this.font = new me.BitmapFont(me.loader.getBinary("PressStart2P"), me.loader.getImage("PressStart2P"), 0.75, "right", "bottom");
+        this.font = new me.BitmapFont(me.loader.getBinary("PressStart2P"), me.loader.getImage("PressStart2P"), 0.75, "center", "bottom");
         this.bg = new me.Sprite(x, y, {
             image: game.texture,
             region: "black.png"
@@ -305,10 +324,7 @@ game.Message = me.Renderable.extend({
 
     draw: function (renderer) {
         if (this.display) {
-            this.size = this.font.measureText(renderer, this.message);
-            this.bg.scale(this.size.width, this.size.height);
-            this.bg.draw(renderer);
-            this.font.draw(renderer, this.message, this.pos.x, this.pos.y);
+            this.font.draw(renderer, this.message, this.pos.x + 70, this.pos.y);
         }
     }
 });
@@ -316,11 +332,15 @@ game.Message = me.Renderable.extend({
 game.Door = me.LevelEntity.extend({
     init: function (x, y, settings) {
         this._super(me.LevelEntity, "init", [x, y, settings]);
+        this.isKinematic = false;
     },
 
     onCollision: function (response, other) {
-        if (other.name == "mainPlayer" && other.action) {
-            this._super(me.LevelEntity, "onCollision", [response, other]);
+        if (other.name == "mainPlayer") {
+            other.ondoor = this;
+            if (other.action)
+                this._super(me.LevelEntity, "onCollision", [response, other]);
         }
+        return false;
     }
 });
