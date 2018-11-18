@@ -267,3 +267,60 @@ game.PlayerEntity = me.Entity.extend({
         }
     }
 });
+
+game.Message = me.Renderable.extend({
+    init: function (x, y, settings) {
+        this._super(me.Renderable, "init", [x, y, settings.width, settings.height]);
+        console.log(settings);
+        this.message = settings.message;
+        this.font = new me.BitmapFont(me.loader.getBinary("PressStart2P"), me.loader.getImage("PressStart2P"), 0.75, "right", "bottom");
+        this.bg = new me.Sprite(x, y, {
+            image: game.texture,
+            region: "black.png"
+        });
+        this.bg.pos.z = -1;
+        this.display = false;
+        this.box = this.getBounds();
+        this.timeoutHandler = null;
+    },
+
+    timeout: function () {
+        this.display = false;
+    },
+
+    update: function (dt) {
+        if (!this.display && this.box.overlaps(game.data.player.getBounds())) {
+            this.display = true;
+            if (this.timeoutHandler) {
+                clearTimeout(this.timeoutHandler);
+                this.timeoutHandler = null;
+            }
+            return true;
+        }
+        if (this.display && !this.box.overlaps(game.data.player.getBounds())) {
+            this.timeoutHandler = setTimeout(this.timeout.bind(this), 1500);
+        }
+        return false;
+    },
+
+    draw: function (renderer) {
+        if (this.display) {
+            this.size = this.font.measureText(renderer, this.message);
+            this.bg.scale(this.size.width, this.size.height);
+            this.bg.draw(renderer);
+            this.font.draw(renderer, this.message, this.pos.x, this.pos.y);
+        }
+    }
+});
+
+game.Door = me.LevelEntity.extend({
+    init: function (x, y, settings) {
+        this._super(me.LevelEntity, "init", [x, y, settings]);
+    },
+
+    onCollision: function (response, other) {
+        if (other.name == "mainPlayer" && other.action) {
+            this._super(me.LevelEntity, "onCollision", [response, other]);
+        }
+    }
+});

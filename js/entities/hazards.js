@@ -6,7 +6,6 @@ game.Path = me.Polygon.extend({
 		}, this);
 		if (vectors.length == 2)
 			vectors.push(vectors[1]);
-		console.log(data.id, vectors);
 		
 		this._super(me.Polygon, "init", [
 			x,y,vectors
@@ -25,7 +24,6 @@ game.Path = me.Polygon.extend({
 				v2: vectors[i + 1]
 			});
 		}
-		console.log(this.map);
 	},
 
 	update: function (params) {
