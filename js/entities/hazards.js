@@ -1,3 +1,12 @@
+game.Path = me.Polygon.extend({
+	init: function (x, y, points) {
+		this._super(me.Polygon, "init", [
+			x,y,points
+		]);
+		console.log(x, y, points);
+	}
+});
+
 game.Hazard = me.Sprite.extend({
 	init: function (x, y, settings) {
 		this._super(me.Sprite, "init", [

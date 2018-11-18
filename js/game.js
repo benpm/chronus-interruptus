@@ -51,6 +51,7 @@ var game = {
         me.pool.register("KeyEntity", game.KeyEntity);
         me.pool.register("CoinEntity", game.CoinEntity);
         me.pool.register("HazardPlatform", game.HazardPlatform);
+        me.pool.register("Path", game.Path);
         me.pool.register("HazardWeight", game.HazardWeight);
 
         // load the texture atlas file
