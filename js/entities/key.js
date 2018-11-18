@@ -90,6 +90,10 @@ game.KeyEntity = me.Sprite.extend({
 			me.collision.check(this);
 		}
 		game.data.time = this.pos.x;
+		// check if we fell into a hole
+        if (!this.inViewport && (this.pos.y > me.video.renderer.getHeight())) {
+            this.pos.y = 0;
+        }
 		// check if we moved (an "idle" animation would definitely be cleaner)
 		if (this.body.vel.x !== 0 || this.body.vel.y !== 0 ||
 			(this.renderable && this.renderable.isFlickering())
