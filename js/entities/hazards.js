@@ -1,17 +1,21 @@
 game.Path = me.Polygon.extend({
 	init: function (x, y, data) {
 		var vectors = [];
-		for (const point of data.points) {
+		data.points.forEach(function (point) {
 			vectors.push(new me.Vector2d(point.x, point.y));
-		}
+		}, this);
+		if (vectors.length == 2)
+			vectors.push(vectors[1]);
+		console.log(data.id, vectors);
+		
 		this._super(me.Polygon, "init", [
 			x,y,vectors
 		]);
 		this.name = data.id;
 		this.length = 0;
 		this.map = [];
-		for (let i = 0; i < vectors.length - 1; i++) {
-			const prev = this.length;
+		for (var i = 0; i < data.points.length - 1; i++) {
+			var prev = this.length;
 			this.length += vectors[i].distance(vectors[i + 1]);
 			this.map.push({
 				a: prev,
@@ -29,17 +33,15 @@ game.Path = me.Polygon.extend({
 	},
 
 	posAt: function (vec, pixelAlong) {
-		for (const range of this.map) {
+		this.map.forEach(function (range) {
 			if (pixelAlong >= range.a && pixelAlong < range.b) {
-				const alongVector = range.diff - (range.b - pixelAlong);
-				const angle = Math.atan2(
-					/* this.pos.y * 2 +  */range.v2.y - range.v1.y, 
-					/* this.pos.x * 2 +  */range.v2.x - range.v1.x);
+				var alongVector = range.diff - (range.b - pixelAlong);
+				var angle = Math.atan2(range.v2.y - range.v1.y, range.v2.x - range.v1.x);
 				vec.x = range.v1.x + this.pos.x + (Math.cos(angle) * alongVector);
 				vec.y = range.v1.y + this.pos.y + (Math.sin(angle) * alongVector);
 				return;
 			}
-		}
+		}, this);
 	}
 });
 
@@ -59,16 +61,12 @@ game.Hazard = me.Sprite.extend({
 		this.type = "hazard";
 		// enable physic
 		this.isKinematic = false;
-		this.inity = this.pos.y;
-		this.initx = this.pos.x;
 		this.rangemin = this.pos.x + settings.min_x;
 		this.rangemax = this.pos.x + settings.max_x;
 		this.timerange = Math.abs(this.rangemax - this.rangemin);
-		this.moverange = settings.moverange;
+		//this.moverange = settings.moverange;
 		this.pathname = settings.path;
 		this.curpoint = 0;
-		this.direction = 1;
-		this.speed = 2;
 	},
 
 	/* onCollision: function (response, other) {
@@ -80,21 +78,11 @@ game.Hazard = me.Sprite.extend({
 		if (this.pathname && !this.path) {
 			this.path = me.game.world.getChildByName(this.pathname)[0];
 		}
+
+		//Follow path
 		if (this.path) {
-			/* const targetx = this.path.pos.x + this.path.points[this.curpoint].x;
-			const targety = this.path.pos.y + this.path.points[this.curpoint].y;
-			const distx = this.pos.x - targetx;
-			const disty = this.pos.y - targety;
-			this.pos.x += distx < this.speed ? this.speed : distx > this.speed ? -this.speed : 0;
-			this.pos.y += disty < this.speed ? this.speed : disty > this.speed ? -this.speed : 0;
-			if (Math.abs(distx) <= this.speed && Math.abs(disty) <= this.speed) {
-				if (this.curpoint == this.path.points.length - 1 || 
-					(this.curpoint == 0 && this.direction == -1))
-					this.direction = -this.direction;
-				this.curpoint += this.direction;
-			} */
+			this.curpoint = ((this.rangemax - game.data.time) / this.timerange) * this.path.length;
 			this.path.posAt(this.pos, this.curpoint);
-			this.curpoint = (this.curpoint + 3) % this.path.length;
 		}
 		return (this._super(me.Entity, "update", [dt]));
 	}
@@ -110,12 +98,12 @@ game.HazardWeight = game.Hazard.extend({
 			}, settings)
 		]);
 	},
-	update: function () {
+	/* update: function () {
 		this._super(game.Hazard, "update");
 		if (game.data.time > this.rangemin && game.data.time < this.rangemax) {
 			this.pos.y = this.inity + ((this.rangemax - game.data.time) / this.timerange) * this.moverange;
 		}
-	}
+	} */
 });
 
 game.HazardPlatform = game.Hazard.extend({
@@ -128,11 +116,11 @@ game.HazardPlatform = game.Hazard.extend({
 			}, settings)
 		]);
 	},
-	update: function () {
+	/* update: function () {
 		this._super(game.Hazard, "update");
 		if ((game.data.time > this.rangemin && game.data.time < this.rangemax)
 			|| (game.data.time < this.rangemin && game.data.time > this.rangemax)) {
 			this.pos.x = this.initx + (Math.abs(this.rangemax - game.data.time) / this.timerange) * this.moverange;
 		}
-	}
+	} */
 });
